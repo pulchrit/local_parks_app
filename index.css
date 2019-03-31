@@ -1,0 +1,29 @@
+html {
+    box-sizing: border-box;
+}
+
+*, *:before, *:after {
+    box-sizing: inherit;
+}
+
+body {
+    font-family: 'Open Sans', sans-serif;
+    margin: 4% 10%;
+}
+
+input {
+    color: gray;
+}
+
+.hidden {
+    display: none;
+}
+
+button {
+    display: block;
+    margin: 20px 0;
+}
+
+.dog-image {
+    width: auto;
+}
