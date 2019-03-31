@@ -31,8 +31,13 @@ function createURLToCall(gitHubHandle) {
     return `https://api.github.com/users/${gitHubHandle}/repos`
 }
 
+// example call https://developer.nps.gov/api/v1/parks?parkCode=acad&api_key=5t3cocswGOgYnCwzgOmQw1pnvzlrhxXleFLg8Clk
+
 function getRepositories(gitHubHandle) {
     
+    // Get API key from config file
+    const npsApikey = config.nationalParkServiceApiKey;
+
     const url = createURLToCall(gitHubHandle);
 
     // Using unauthenticated call, limit of 60 requests per hour
