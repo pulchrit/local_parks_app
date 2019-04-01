@@ -29,8 +29,12 @@
     
     <main>
         <form class="js-form-submit">
-            <label for="states">Enter the GitHub handle to search for:
-                <input type="text" id="states" name="states" required placeholder="Washington">
+            <label for="states">Enter the state or states you want to search (use two letter abbreviations):
+                <input type="text" id="states" name="states" required placeholder="WA, NY">
+            </label>
+            <label for="max-results">Enter the number of results you'd like to see:
+                <input type="number" id="max-results" name="max-results" 
+                min="1" max="50" required value="10">
             </label>
             <button type="submit">Find parks</button>
         </form>

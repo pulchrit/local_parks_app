@@ -1,78 +1,104 @@
 'use strict';
 
-function displayResults(responseJSON) {
+// Get API key from config file. Trying method as suggested by: 
+// https://gist.github.com/derzorngottes/3b57edc1f996dddcab25 to hide
+// API key on github. Not sure of the proper/better way to do this? 
+const npsApikey = config.nationalParkServiceApiKey; 
+
+function displayResults(responseJSON, states) {
 
     $(".js-results").empty();
 
     $(".js-results").append(
-        `<h2>Results for ${responseJSON[0].owner.login}</h2> 
-        <ul class="js-repos-list">
+        `<h2>Results for ${states}</h2> 
+        <ul class="js-parks-list">
         </ul>`
     );
 
-    // Loop over object repos and add info to DOM
-    for (let i = 0; i < responseJSON.length; i++) {
-        $(".js-repos-list").append(
-            `<li><h3><a href="${responseJSON[i].html_url}">${responseJSON[i].name}</a></h3>
-            <p>${responseJSON[i].description}</p>
-            </li>`
+    // Loop over park results and add info to DOM.
+    for (let i = 0; i < responseJSON.data.length; i++) {
+        $(".js-parks-list").append(
+            `<li>
+                <h3>${responseJSON.data[i].fullname}</h3>
+                <p>${responseJSON.data[i].description}</p>
+                <p><a href="${responseJSON.data[i].url}">${responseJSON.data[i].url}</a></p>`
         );
+        
+        // Loop over addresses, find physical address and add only it to DOM.
+        for (let j=0; j < responseJSON.data[i].addresses.length; j++) {
+            if (responseJSON.data[i].addresses[j].type === 'Physical') {
+                $(".js-parks-list").append(
+                    `<address>
+                        <p>${responseJSON.data[i].addresses[j].line1}</p>
+                        <p>${responseJSON.data[i].addresses[j].city}, ${responseJSON.data[i].addresses[j].stateCode}, ${responseJSON.data[i].addresses[j].postalCode}</p>
+                    </address>
+                </li>`
+                );
+            }
+        };
     };
     
     $(".js-results").removeClass('hidden');
 
 }
 
-// Using default parameters: type:owner, sort:full_name, order:asc, so 
-// the url is pretty simple to create. I'm bulding this separate function 
-// for future expansion using non-default parameters (which would necessitate
-// an equivalent expansion of the html form for these parameters).
-function createURLToCall(gitHubHandle) {
-    return `https://api.github.com/users/${gitHubHandle}/repos`
+function formatQueryParams(params) {
+
+    const queryItems = Object.keys(params)
+        .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`);
+    
+        return queryItems.join("&");
 }
 
-// example call https://developer.nps.gov/api/v1/parks?parkCode=acad&api_key=5t3cocswGOgYnCwzgOmQw1pnvzlrhxXleFLg8Clk
-
-function getRepositories(gitHubHandle) {
+function getParksNearby(states, maxResults) {
     
-    // Get API key from config file
-    const npsApikey = config.nationalParkServiceApiKey;
+    const baseUrl = "https://developer.nps.gov/api/v1/parks?";
 
-    const url = createURLToCall(gitHubHandle);
+    const params = {
+        stateCode: states,
+        limit: maxResults,
+        field: "addresses",
+        api_key: npsApikey,
+    };
 
-    // Using unauthenticated call, limit of 60 requests per hour
+    const url = `${baseUrl}${formatQueryParams(params)}`;
+
     const options = {
         headers: new Headers({
-            "Accept": "application/vnd.github.v3+json",
-            "User-Agent": "pulchrit",
-            "Origin": "https://pulchrit.github.io/list_user_repos_app/",
+        'accept': 'application/json'
         })
     };
 
     fetch(url, options)
-        .then(response => {
-            if (response.ok) {
-                return response.json();
-            }
-            throw new Error(response.statusText);
-        })
-        .then(responseJSON => displayResults(responseJSON))
-        .catch(error => {
-            $(".js-results").html(
-                `<p>Hmmm...Something isn't right. Here's the error message:</p>
-                <p>${error}</p>`);
-            $(".js-results").removeClass("hidden");
-        });
+    .then(response => {
+        if (response.ok) {
+            return response.json();
+        }
+        throw new Error(response.statusText);
+    })
+    .then(responseJSON => displayResults(responseJSON, states))
+    .catch(error => {
+        $(".js-results").html(
+            `<p>Hmmm...Something isn't right. Here's the error message:</p>
+            <p>${error}</p>`);
+        $(".js-results").removeClass("hidden");
+    })    
 }
 
-function onHandleEntered() {
+function onInfoEntered() {
+    
     $(".js-form-submit").submit(event => {
         event.preventDefault();
-        const gitHubHandle = $("#gitHubHandle").val();
-        getRepositories(gitHubHandle);
-        $("#gitHubHandle").val("");
+        
+        const states = $("#states").val();
+        const maxResults = $("#max-results").val();
+        
+        getParksNearby(states, maxResults);
+        
+        $("#states").val("");
+        $("#max-results").val("10");
     });
 }
 
-// When document is ready, call function to listen for form submission
-$(onHandleEntered);
+// When document is ready, call function to listen for form submission.
+$(onInfoEntered);
