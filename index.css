@@ -19,7 +19,7 @@ input {
     display: none;
 }
 
-button {
+button, .input-styles {
     display: block;
     margin: 20px 0;
 }

@@ -7,6 +7,9 @@ const npsApikey = config.nationalParkServiceApiKey;
 
 function displayResults(responseJSON, states) {
 
+    console.log(responseJSON);
+    console.log(states);
+
     $(".js-results").empty();
 
     $(".js-results").append(
@@ -57,7 +60,7 @@ function getParksNearby(states, maxResults) {
     const params = {
         stateCode: states,
         limit: maxResults,
-        field: "addresses",
+        fields: "addresses",
         api_key: npsApikey,
     };
 
