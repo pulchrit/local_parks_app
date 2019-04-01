@@ -11,9 +11,6 @@ const npsApikey = '5t3cocswGOgYnCwzgOmQw1pnvzlrhxXleFLg8Clk';
 
 function displayResults(responseJSON, states) {
 
-    console.log(responseJSON);
-    console.log(states);
-
     $(".js-results").empty();
 
     $(".js-results").append(
@@ -26,7 +23,7 @@ function displayResults(responseJSON, states) {
     for (let i = 0; i < responseJSON.data.length; i++) {
         $(".js-parks-list").append(
             `<li>
-                <h3>${responseJSON.data[i].fullname}</h3>
+                <h3>${responseJSON.data[i].fullName}</h3>
                 <p>${responseJSON.data[i].description}</p>
                 <p><a href="${responseJSON.data[i].url}">${responseJSON.data[i].url}</a></p>`
         );
@@ -37,7 +34,7 @@ function displayResults(responseJSON, states) {
                 $(".js-parks-list").append(
                     `<address>
                         <p class="address-styling">${responseJSON.data[i].addresses[j].line1}</p>
-                        <p class="address-styling">${responseJSON.data[i].addresses[j].city}, ${responseJSON.data[i].addresses[j].statecode}, ${responseJSON.data[i].addresses[j].postalcode}</p>
+                        <p class="address-styling">${responseJSON.data[i].addresses[j].city}, ${responseJSON.data[i].addresses[j].stateCode}, ${responseJSON.data[i].addresses[j].postalCode}</p>
                     </address>
                 </li>`
                 );
@@ -107,5 +104,35 @@ function onInfoEntered() {
     });
 }
 
-// When document is ready, call function to listen for form submission.
-$(onInfoEntered);
+// For multiple states, only a comma delimited list with no spaces is acceptable.
+// When spaces are included, only the first state's info. will be returned. Hence,
+// I'm adding this bit of form validation with a custom error message. 
+// Simple validation from: 
+// https://developer.mozilla.org/en-US/docs/Learn/HTML/Forms/Form_validation#Customized_error_messages
+function validateForm() {
+    
+    const states = document.getElementById("states");
+
+    // Triggers when any user input is entered.
+    states.addEventListener("input", event => {
+      
+        // if the input does not match the pattern defined with the pattern attribute on the input
+        // element of the form, a custom error message is alerted.
+        if (states.validity.patternMismatch) {
+            states.setCustomValidity("No spaces please. Enter only two letter state abbreviations separated by commas.");
+        
+        // If input matches pattern, setCustomValidity to empty string, which effectively
+        // clears any error message. 
+        } else {
+            states.setCustomValidity("");
+        }
+    });
+}
+
+function runApp() {
+    validateForm();
+    onInfoEntered();
+}
+
+// When document is ready, call the runApp function to validate the form and listen for form submission.
+$(runApp);
