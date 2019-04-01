@@ -1,9 +1,13 @@
 'use strict';
 
-// Get API key from config file. Trying method as suggested by: 
+// Get API key from config file. This only works when I serve the app from 
+// my localhost; it won't workon GitHubPages. Method suggested by: 
 // https://gist.github.com/derzorngottes/3b57edc1f996dddcab25 to hide
 // API key on github. Not sure of the proper/better way to do this? 
-const npsApikey = config.nationalParkServiceApiKey; 
+// const npsApikey = config.nationalParkServiceApiKey; 
+
+// Hard coding the apiKey.
+const npsApikey = '5t3cocswGOgYnCwzgOmQw1pnvzlrhxXleFLg8Clk';
 
 function displayResults(responseJSON, states) {
 
@@ -32,8 +36,8 @@ function displayResults(responseJSON, states) {
             if (responseJSON.data[i].addresses[j].type === 'Physical') {
                 $(".js-parks-list").append(
                     `<address>
-                        <p>${responseJSON.data[i].addresses[j].line1}</p>
-                        <p>${responseJSON.data[i].addresses[j].city}, ${responseJSON.data[i].addresses[j].stateCode}, ${responseJSON.data[i].addresses[j].postalCode}</p>
+                        <p class="address-styling">${responseJSON.data[i].addresses[j].line1}</p>
+                        <p class="address-styling">${responseJSON.data[i].addresses[j].city}, ${responseJSON.data[i].addresses[j].statecode}, ${responseJSON.data[i].addresses[j].postalcode}</p>
                     </address>
                 </li>`
                 );
@@ -59,7 +63,7 @@ function getParksNearby(states, maxResults) {
 
     const params = {
         stateCode: states,
-        limit: maxResults,
+        limit: maxResults - 1,
         fields: "addresses",
         api_key: npsApikey,
     };

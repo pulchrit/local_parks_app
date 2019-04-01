@@ -24,6 +24,11 @@ button, .input-styles {
     margin: 20px 0;
 }
 
-.dog-image {
-    width: auto;
+address {
+    margin: 10 0;
 }
+
+.address-styling {
+    margin: 0;
+}
+
